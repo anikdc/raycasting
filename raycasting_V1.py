@@ -1,7 +1,7 @@
 import pygame
 import math
-from pygame.locals import *
 
+from pygame.locals import *
 pygame.init()
 screen = pygame.display.set_mode((800,600))
 clock = pygame.time.Clock()
@@ -9,9 +9,13 @@ running = True
 
 class Raycaster():
     def __init__(self):
-        self.x = 1.5
-        self.y = 1.5
-        self.angle = 0
+        self.x = 1.5    #X coordinate of the player
+        self.y = 1.5    #Y coordinate of the player
+        '''
+        if the ray is pointing directly at the center of the screen i.e straight-up
+        then rayangle=self.angle
+        '''
+        self.angle = 0  #Initial angle of the player
         self.fov = math.pi/3
         self.map = [[1, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -25,17 +29,21 @@ class Raycaster():
                     [1, 1, 1, 1, 1, 1, 1, 1, 1]]
     
     def castray(self, rayangle):
-        x, y = self.x, self.y
-        dx = math.cos(rayangle)
-        dy = math.sin(rayangle)
+        x, y = self.x, self.y   #current (x,y) of the ray
+        dx = math.cos(rayangle) #Direction (NOT distance), cos=breadth/hypotenuse
+        dy = math.sin(rayangle) #Direction (NOT distance), sin=perpendicular/hypotenuse
 
-        for i in range(400):
+        for i in range(400):    #Breaking the loop, if ray continues increasing without hitting anything
             map_x, map_y = int(x), int(y)
             if self.map[map_y][map_x] == 1:
-                distance = math.sqrt((x-self.x)**2 + (y-self.y)**2)
-                wallheight = min(600, int(600 / (distance + 0.00001)))
+                distance = math.sqrt((x-self.x)**2 + (y-self.y)**2) #Standard distance formula
+                try:
+                    wallheight = min(600, int(600 / (distance)))
+                except ZeroDivisionError:   #screenheight/distance can lead to division by 0
+                    continue
                 return distance, wallheight
-            x += dx * 0.02
+            #Moves the ray head by a step of 0.02 in the same direction as dx
+            x += dx * 0.02 
             y += dy * 0.02
         
         return 400, 1
@@ -46,7 +54,12 @@ class Raycaster():
         slicewidth = screenwidth / rays
 
         for i in range(rays):
-            rayangle = self.angle - (self.fov/2) + (i / rays) * self.fov
+            '''
+            self.angle - (self.fov/2) gives leftmost angle of the players vision
+            i/rays is the offset from the left most side of the vision
+            multiply i/rays * self.fov to scale the offset to our vision
+            '''
+            rayangle = self.angle - (self.fov/2) + (i / rays) * self.fov    #rayangle gives direction ray is pointing towards
             distance, wallheight = self.castray(rayangle)
             self.drawwallslice(i, wallheight, slicewidth, distance)
         
@@ -59,6 +72,7 @@ class Raycaster():
         if keys[K_RIGHT]:
             self.angle += angularspeed
         if keys[K_UP]:
+            #Change code here to make sure it doesn't clip through walls
             self.x += math.cos(self.angle) * speed
             self.y += math.sin(self.angle) * speed
         if keys[K_DOWN]:

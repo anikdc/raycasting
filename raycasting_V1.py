@@ -78,13 +78,21 @@ class Raycaster():
         if keys[K_DOWN]:
             self.x -= math.cos(self.angle) * speed
             self.y -= math.sin(self.angle) * speed
-
+        '''     
+        if keys[K_w]:
+            self.fov+=speed
+        if keys[K_s]:
+            self.fov-=speed
+        '''
     def drawwallslice(self, i, wallheight, slicewidth, distance):
-        color = max(0, min(255, int(255 - distance * 20)))
-        pygame.draw.rect(screen, (color, 0, color), 
-                         (i * slicewidth, 300 - wallheight // 2, 
-                          slicewidth + 1, wallheight))
-
+        sim_renderdist=35   #Simulates render distance, works inversely
+        color = max(0, min(255, int(255 - distance * sim_renderdist)))  #Faraway, darker colours
+        pygame.draw.rect(screen, (color, 0, color), #(R,G,B)
+                         (i * slicewidth, 300-wallheight//2,    #left, top (counts pixels from top), width, height
+                          slicewidth, wallheight))
+        '''
+        i is the current ray, 
+        '''
 
 raycaster = Raycaster()
 
@@ -98,12 +106,16 @@ while running:
     raycaster.updateplayer()
     
     screen.fill((0, 0, 0))
+    '''
+    pygame.draw.rect(screen, (0,255,0), (0,300,800,300)) #Sky
+    pygame.draw.rect(screen, (0,0,255), (0,0,800,300)) #Ground
+    '''
     raycaster.raycast()
     
     debug_text = f"Pos: ({raycaster.x:.2f}, {raycaster.y:.2f}), Angle: {raycaster.angle:.2f}"
-    text_surface = font.render(debug_text, True, (255, 255, 255))
     screen.blit(text_surface, (10, 10))
     
+    text_surface = font.render(debug_text, True, (255, 255, 255))
     pygame.display.flip()
     clock.tick(60) 
 

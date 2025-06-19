@@ -72,12 +72,16 @@ class Raycaster():
         if keys[K_RIGHT]:
             self.angle += angularspeed
         if keys[K_UP]:
-            #Change code here to make sure it doesn't clip through walls
-            self.x += math.cos(self.angle) * speed
-            self.y += math.sin(self.angle) * speed
+            #Doesn't clip through walls
+            if self.map[int(self.y)][int(self.x+math.cos(self.angle) * speed)] != 1:
+                self.x += math.cos(self.angle) * speed
+            if self.map[int(self.y+math.sin(self.angle) * speed)][int(self.x)] != 1:
+                self.y += math.sin(self.angle) * speed
         if keys[K_DOWN]:
-            self.x -= math.cos(self.angle) * speed
-            self.y -= math.sin(self.angle) * speed
+            if self.map[int(self.y)][int(self.x-math.cos(self.angle) * speed)] != 1:
+                self.x -= math.cos(self.angle) * speed
+            if self.map[int(self.y-math.sin(self.angle) * speed)][int(self.x)] != 1:
+                self.y -= math.sin(self.angle) * speed
         '''     
         if keys[K_w]:
             self.fov+=speed
@@ -97,7 +101,6 @@ class Raycaster():
 raycaster = Raycaster()
 
 font = pygame.font.Font(None, 36)
-
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -106,16 +109,15 @@ while running:
     raycaster.updateplayer()
     
     screen.fill((0, 0, 0))
-    '''
+    #'''
     pygame.draw.rect(screen, (0,255,0), (0,300,800,300)) #Sky
     pygame.draw.rect(screen, (0,0,255), (0,0,800,300)) #Ground
-    '''
+    #'''
     raycaster.raycast()
-    
     debug_text = f"Pos: ({raycaster.x:.2f}, {raycaster.y:.2f}), Angle: {raycaster.angle:.2f}"
+    text_surface = font.render(debug_text, True, (255, 255, 255))
     screen.blit(text_surface, (10, 10))
     
-    text_surface = font.render(debug_text, True, (255, 255, 255))
     pygame.display.flip()
     clock.tick(60) 
 

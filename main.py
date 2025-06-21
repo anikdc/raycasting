@@ -1,5 +1,6 @@
 import math
 import pygame
+import minimap
 import rc_engine
 from pygame.locals import *
 
@@ -19,11 +20,15 @@ map=[[1, 1, 1, 1, 1, 1, 1, 1, 1],
      [1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
 pygame.init()
-screen = pygame.display.set_mode((800,600))
+screen_w, screen_h=800,600
+screen = pygame.display.set_mode((screen_w, screen_h))
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 36)
 
+player_img = pygame.transform.scale_by((pygame.image.load("resources/miniplayer_sprite.png").convert_alpha()),0.15)
+
 raycaster = rc_engine.Raycaster(screen, map)
+mm=minimap.Minimap(player_img, screen, map)
 running = True
 
 
@@ -54,6 +59,7 @@ def updateplayer():
         fov-=speed
     '''
     raycaster.update_state(x,y,angle, fov)
+    mm.update_state(x,y,angle)
 
 while running:
     for event in pygame.event.get():
@@ -61,18 +67,24 @@ while running:
             running = False
     
     updateplayer()
-
     screen.fill((0, 0, 0))
     #'''
     pygame.draw.rect(screen, (0,255,0), (0,300,800,300)) #Sky
     pygame.draw.rect(screen, (0,0,255), (0,0,800,300)) #Ground
     #'''
+
     raycaster.raycast()
+    mm.drawplayer(x,y,angle)
+    
     debug_text = f"Pos: ({raycaster.x:.2f}, {raycaster.y:.2f}), Angle: {raycaster.angle:.2f}"
     text_surface = font.render(debug_text, True, (255, 255, 255))
-    screen.blit(text_surface, (10, 10))
-    fps = clock.get_fps()                            
-    screen.blit(font.render(f"FPS: {fps:.1f}", True, (255,255,0)), (10,40)) 
+    text_rect = text_surface.get_rect(topright=(screen_w - 10, 10))  # 10 pixels margin from right
+    screen.blit(text_surface, text_rect)
+
+    fps = clock.get_fps()
+    fps_surface = font.render(f"FPS: {fps:.1f}", True, (255, 255, 0))
+    fps_rect = fps_surface.get_rect(topright=(screen_w - 10, 40))  # 10 pixelss margin, 40 pixels from top
+    screen.blit(fps_surface, fps_rect)
 
     pygame.display.flip()
     clock.tick(60) 

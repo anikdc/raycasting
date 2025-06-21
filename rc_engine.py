@@ -15,6 +15,7 @@ class Raycaster():
         self.y = y
         self.angle = angle
         self.fov = fov
+        
     def castray(self, rayangle):
         x, y = self.x, self.y   #current (x,y) of the ray
         dx = math.cos(rayangle) #Direction (NOT distance), cos=breadth/hypotenuse

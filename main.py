@@ -26,8 +26,11 @@ clock = pygame.time.Clock()
 font = pygame.font.Font(None, 36)
 
 player_img = pygame.transform.scale_by((pygame.image.load("resources/miniplayer_sprite.png").convert_alpha()),0.15)
+wall_texture=pygame.image.load("resources/walltexture.png").convert()
+sky=pygame.transform.smoothscale(pygame.image.load("resources/nightsky.png"),(800,300)).convert()
+ground=pygame.transform.smoothscale(pygame.image.load("resources/ground.png"),(800,300)).convert()
 
-raycaster = rc_engine.Raycaster(screen, map)
+raycaster = rc_engine.Raycaster(wall_texture, screen, map)
 mm=minimap.Minimap(player_img, screen, map)
 running = True
 
@@ -68,10 +71,12 @@ while running:
     
     updateplayer()
     screen.fill((0, 0, 0))
-    #'''
+    screen.blit(sky, (0, 0))
+    screen.blit(ground, (0,300))
+    '''
     pygame.draw.rect(screen, (0,255,0), (0,300,800,300)) #Sky
     pygame.draw.rect(screen, (0,0,255), (0,0,800,300)) #Ground
-    #'''
+    '''
 
     raycaster.raycast()
     mm.drawplayer(x,y,angle)

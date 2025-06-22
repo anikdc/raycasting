@@ -2,13 +2,14 @@ import math
 import pygame
 
 class Raycaster():
-    def __init__(self, screen, map):
+    def __init__(self, wall_texture, screen, map):
         self.x = 0
         self.y = 0  
         self.angle = 0
         self.fov = 0
         self.map = map
         self.screen=screen
+        self.wall_texture=wall_texture
     
     def update_state(self, x, y, angle, fov):
         self.x = x
@@ -37,12 +38,17 @@ class Raycaster():
         return 400, 1
 
     def drawwallslice(self, i, wallheight, slicewidth, distance):
+        '''
         sim_renderdist=35   #Simulates render distance, works inversely
         color = max(0, min(255, int(255 - distance * sim_renderdist)))  #Faraway, darker colours
+        '''
+        scaled_texture=pygame.transform.scale(self.wall_texture,(slicewidth, wallheight))
+        self.screen.blit(scaled_texture, (i*slicewidth, 300-wallheight//2))
+        '''
         pygame.draw.rect(self.screen, (color, 0, color), #(R,G,B)
                          (i * slicewidth, 300-wallheight//2,    #left, top (counts pixels from top), width, height
                           slicewidth, wallheight))
-    
+        '''
     def raycast(self):
         rays = 200
         screenwidth = 800
